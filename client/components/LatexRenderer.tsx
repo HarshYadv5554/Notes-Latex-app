@@ -13,35 +13,47 @@ export function LatexRenderer({ content, className = "" }: LatexRendererProps) {
     if (!containerRef.current) return;
 
     try {
-      // Process the content to render LaTeX
-      let processedContent = content;
+      // Escape HTML first
+      let processedContent = content.replace(/[&<>"']/g, (match) => {
+        const htmlEscapes: Record<string, string> = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        };
+        return htmlEscapes[match] || match;
+      });
 
-      // Handle display math ($$...$$)
+      // Handle display math ($$...$$) first
       processedContent = processedContent.replace(
         /\$\$(.*?)\$\$/gs,
         (match, latex) => {
           try {
-            return katex.renderToString(latex, {
+            const rendered = katex.renderToString(latex.trim(), {
               displayMode: true,
               throwOnError: false,
             });
+            return `<div class="katex-display-wrapper">${rendered}</div>`;
           } catch (e) {
-            return match;
+            console.warn("LaTeX display math error:", e);
+            return `<code class="latex-error">${match}</code>`;
           }
         },
       );
 
-      // Handle inline math ($...$)
+      // Handle inline math ($...$) - avoid matching display math
       processedContent = processedContent.replace(
-        /\$([^$]*?)\$/g,
+        /(?<!\$)\$([^$\n]+?)\$(?!\$)/g,
         (match, latex) => {
           try {
-            return katex.renderToString(latex, {
+            return katex.renderToString(latex.trim(), {
               displayMode: false,
               throwOnError: false,
             });
           } catch (e) {
-            return match;
+            console.warn("LaTeX inline math error:", e);
+            return `<code class="latex-error">${match}</code>`;
           }
         },
       );
