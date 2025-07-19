@@ -111,8 +111,8 @@ export function NotesEditor({
       {/* Editor/Preview */}
       <div className="flex flex-1 overflow-hidden">
         {isPreviewMode ? (
-          <div className="flex-1 overflow-auto">
-            <Card className="m-4 h-fit">
+          <div className="flex-1 overflow-auto p-4">
+            <Card className="max-w-none">
               <CardHeader>
                 <CardTitle>{title || "Untitled Note"}</CardTitle>
               </CardHeader>
