@@ -27,12 +27,17 @@ export default function Index() {
   } = useQuery({
     queryKey: ["notes"],
     queryFn: async (): Promise<NotesResponse> => {
+      console.log("Fetching notes...");
       const response = await fetch("/api/notes");
       if (!response.ok) {
-        throw new Error("Failed to fetch notes");
+        throw new Error(`Failed to fetch notes: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log("Fetched notes:", data);
+      return data;
     },
+    staleTime: 0,
+    gcTime: 0,
   });
 
   // Create note mutation
