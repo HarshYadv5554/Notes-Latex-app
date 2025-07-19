@@ -24,5 +24,12 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Notes API routes
+  app.get("/api/notes", getAllNotes);
+  app.get("/api/notes/:id", getNoteById);
+  app.post("/api/notes", createNote);
+  app.put("/api/notes/:id", updateNote);
+  app.delete("/api/notes/:id", deleteNote);
+
   return app;
 }
