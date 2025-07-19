@@ -18,42 +18,50 @@ const noteSchema = new mongoose.Schema({
 
 const NoteModel = mongoose.model("Note", noteSchema);
 
-// Connect to MongoDB (using in-memory for demo, replace with actual MongoDB URI)
+// MongoDB connection
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
 
   try {
-    // For demo purposes, we'll use a simple in-memory approach
-    // In production, replace with: await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connection established (demo mode)");
+    await mongoose.connect(
+      "mongodb+srv://harsh:mypassword@cluster0.e74piwm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+    );
+    console.log("MongoDB connection established");
     isConnected = true;
+
+    // Create a welcome note if no notes exist
+    const noteCount = await NoteModel.countDocuments();
+    if (noteCount === 0) {
+      await NoteModel.create({
+        title: "Welcome to LaTeX Notes",
+        content:
+          "This is your first note! Try writing some LaTeX: $$E = mc^2$$\n\nYou can also write inline math like $\\pi \\approx 3.14159$ or chemical formulas like $H_2O$.",
+      });
+    }
   } catch (error) {
     console.error("MongoDB connection error:", error);
+    throw error;
   }
 }
-
-// In-memory storage for demo (replace with actual MongoDB in production)
-let notes: Note[] = [
-  {
-    _id: "1",
-    title: "Welcome to LaTeX Notes",
-    content:
-      "This is your first note! Try writing some LaTeX: $$E = mc^2$$\n\nYou can also write inline math like $\\pi \\approx 3.14159$ or chemical formulas like $H_2O$.",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-let nextId = 2;
 
 // Get all notes
 export const getAllNotes: RequestHandler = async (req, res) => {
   try {
     await connectDB();
+    const mongoNotes = await NoteModel.find().sort({ updatedAt: -1 });
+    const notes: Note[] = mongoNotes.map((note) => ({
+      _id: note._id.toString(),
+      title: note.title,
+      content: note.content,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
+    }));
     const response: NotesResponse = { notes };
     res.json(response);
   } catch (error) {
+    console.error("Failed to fetch notes:", error);
     res.status(500).json({ error: "Failed to fetch notes" });
   }
 };
@@ -63,15 +71,24 @@ export const getNoteById: RequestHandler = async (req, res) => {
   try {
     await connectDB();
     const { id } = req.params;
-    const note = notes.find((n) => n._id === id);
+    const mongoNote = await NoteModel.findById(id);
 
-    if (!note) {
+    if (!mongoNote) {
       return res.status(404).json({ error: "Note not found" });
     }
+
+    const note: Note = {
+      _id: mongoNote._id.toString(),
+      title: mongoNote.title,
+      content: mongoNote.content,
+      createdAt: mongoNote.createdAt,
+      updatedAt: mongoNote.updatedAt,
+    };
 
     const response: NoteResponse = { note };
     res.json(response);
   } catch (error) {
+    console.error("Failed to fetch note:", error);
     res.status(500).json({ error: "Failed to fetch note" });
   }
 };
@@ -82,20 +99,23 @@ export const createNote: RequestHandler = async (req, res) => {
     await connectDB();
     const { title, content }: CreateNoteRequest = req.body;
 
-    const newNote: Note = {
-      _id: nextId.toString(),
+    const mongoNote = await NoteModel.create({
       title,
       content,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    });
+
+    const note: Note = {
+      _id: mongoNote._id.toString(),
+      title: mongoNote.title,
+      content: mongoNote.content,
+      createdAt: mongoNote.createdAt,
+      updatedAt: mongoNote.updatedAt,
     };
 
-    notes.push(newNote);
-    nextId++;
-
-    const response: NoteResponse = { note: newNote };
+    const response: NoteResponse = { note };
     res.status(201).json(response);
   } catch (error) {
+    console.error("Failed to create note:", error);
     res.status(500).json({ error: "Failed to create note" });
   }
 };
@@ -107,20 +127,28 @@ export const updateNote: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const updates: UpdateNoteRequest = req.body;
 
-    const noteIndex = notes.findIndex((n) => n._id === id);
-    if (noteIndex === -1) {
+    const mongoNote = await NoteModel.findByIdAndUpdate(
+      id,
+      { ...updates, updatedAt: new Date() },
+      { new: true },
+    );
+
+    if (!mongoNote) {
       return res.status(404).json({ error: "Note not found" });
     }
 
-    notes[noteIndex] = {
-      ...notes[noteIndex],
-      ...updates,
-      updatedAt: new Date(),
+    const note: Note = {
+      _id: mongoNote._id.toString(),
+      title: mongoNote.title,
+      content: mongoNote.content,
+      createdAt: mongoNote.createdAt,
+      updatedAt: mongoNote.updatedAt,
     };
 
-    const response: NoteResponse = { note: notes[noteIndex] };
+    const response: NoteResponse = { note };
     res.json(response);
   } catch (error) {
+    console.error("Failed to update note:", error);
     res.status(500).json({ error: "Failed to update note" });
   }
 };
@@ -131,14 +159,15 @@ export const deleteNote: RequestHandler = async (req, res) => {
     await connectDB();
     const { id } = req.params;
 
-    const noteIndex = notes.findIndex((n) => n._id === id);
-    if (noteIndex === -1) {
+    const deletedNote = await NoteModel.findByIdAndDelete(id);
+
+    if (!deletedNote) {
       return res.status(404).json({ error: "Note not found" });
     }
 
-    notes.splice(noteIndex, 1);
     res.status(204).send();
   } catch (error) {
+    console.error("Failed to delete note:", error);
     res.status(500).json({ error: "Failed to delete note" });
   }
 };
