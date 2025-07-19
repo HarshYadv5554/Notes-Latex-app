@@ -104,3 +104,63 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* LaTeX content styling */
+  .latex-content {
+    @apply leading-relaxed;
+  }
+
+  .latex-content .katex {
+    font-size: 1.1em !important;
+  }
+
+  .latex-content .katex-display {
+    @apply my-4;
+  }
+
+  /* Custom scrollbar for better UX */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-muted/30;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-md;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Enhanced prose styling for notes */
+  .prose {
+    @apply text-foreground;
+    line-height: 1.7;
+  }
+
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    @apply text-foreground font-semibold;
+  }
+
+  .prose code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm;
+  }
+
+  .prose pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-primary/30 bg-muted/50 pl-4 py-2 italic;
+  }
+}
