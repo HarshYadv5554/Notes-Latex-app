@@ -67,7 +67,7 @@ export function NotesList({
             notes.map((note) => (
               <Card
                 key={note._id}
-                className={`cursor-pointer transition-colors hover:bg-accent ${
+                className={`group cursor-pointer transition-colors hover:bg-accent ${
                   selectedNoteId === note._id
                     ? "border-primary bg-accent"
                     : "border-border"
