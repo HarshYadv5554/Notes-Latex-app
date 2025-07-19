@@ -16,12 +16,10 @@ export function createServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // Example API routes
+  // Health check endpoint
   app.get("/api/ping", (_req, res) => {
-    res.json({ message: "Hello from Express server v2!" });
+    res.json({ message: "LaTeX Notes API is running!" });
   });
-
-  app.get("/api/demo", handleDemo);
 
   // Notes API routes
   app.get("/api/notes", getAllNotes);
