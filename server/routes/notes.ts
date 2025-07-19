@@ -26,7 +26,8 @@ async function connectDB() {
 
   try {
     await mongoose.connect(
-      "mongodb+srv://harsh:mypassword@cluster0.e74piwm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+      process.env.MONGODB_URI ||
+        "mongodb+srv://harsh:mypassword@cluster0.e74piwm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     );
     console.log("MongoDB connection established");
     isConnected = true;
