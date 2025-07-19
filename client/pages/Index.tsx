@@ -149,7 +149,7 @@ export default function Index() {
   const handleCreateNote = () => {
     createNoteMutation.mutate({
       title: "New Note",
-      content: "",
+      content: "Start writing your note here...\n\nTry some LaTeX: $E = mc^2$",
     });
   };
 
