@@ -125,17 +125,17 @@ export function NotesEditor({
           <div className="flex flex-1 gap-4 p-4">
             {/* Editor */}
             <div className="flex-1">
-              <Card className="h-full">
-                <CardHeader>
+              <Card className="h-full flex flex-col">
+                <CardHeader className="flex-shrink-0">
                   <CardTitle className="text-sm">Editor</CardTitle>
                 </CardHeader>
-                <CardContent className="h-full p-0">
+                <CardContent className="flex-1 p-0 min-h-0">
                   <Textarea
                     ref={textareaRef}
                     placeholder="Start writing your note... Use $...$ for inline math or $$...$$ for display math."
                     value={content}
                     onChange={(e) => handleContentChange(e.target.value)}
-                    className="h-full min-h-[400px] resize-none border-0 text-sm font-mono focus-visible:ring-0"
+                    className="h-full w-full resize-none border-0 text-sm font-mono focus-visible:ring-0"
                   />
                 </CardContent>
               </Card>
