@@ -27,14 +27,11 @@ export default function Index() {
   } = useQuery({
     queryKey: ["notes"],
     queryFn: async (): Promise<NotesResponse> => {
-      console.log("Fetching notes...");
       const response = await fetch("/api/notes");
       if (!response.ok) {
         throw new Error(`Failed to fetch notes: ${response.status}`);
       }
-      const data = await response.json();
-      console.log("Fetched notes:", data);
-      return data;
+      return response.json();
     },
     staleTime: 0,
     gcTime: 0,
