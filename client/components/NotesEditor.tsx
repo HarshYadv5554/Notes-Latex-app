@@ -143,11 +143,11 @@ export function NotesEditor({
 
             {/* Live Preview */}
             <div className="flex-1">
-              <Card className="h-full">
-                <CardHeader>
+              <Card className="h-full flex flex-col">
+                <CardHeader className="flex-shrink-0">
                   <CardTitle className="text-sm">Live Preview</CardTitle>
                 </CardHeader>
-                <CardContent className="overflow-auto">
+                <CardContent className="flex-1 overflow-auto min-h-0 p-4">
                   <LatexRenderer content={content} />
                 </CardContent>
               </Card>
